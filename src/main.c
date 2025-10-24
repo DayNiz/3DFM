@@ -1,10 +1,16 @@
-#include <dirent.h>
+// Replace dirent by tinydir
+//#include <dirent.h>
+
 #include <string.h>
 #include <sys/types.h>
 #include <errno.h>
 #include <stdio.h>
 #include <math.h>
 #include "raylib.h"
+
+
+#include "tinydir.h"
+#include "stb_ds.h"
 
 #define SCREEN_WIDTH (800)
 #define SCREEN_HEIGHT (450)
