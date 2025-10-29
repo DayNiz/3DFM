@@ -1,42 +1,26 @@
-# Simple and portable CMake template for raylib
+# 3DFM
+*( 3 Dimention File Manager )*
+Explore your filesytem in a 3D world ! 
 
-This is a basic project template for raylib using CMake and has been tested with Visual Studio, Visual Studio Code and CLion.
+---
+# Compiling
+1. Clone this repo. `git clone https://github.com/DayNiz/3DFM`
+2. Install [CMake](https://cmake.org/download)
+3. Setup build directory. `cmake -B build`
+4. Compile. `cmake --build build`
+(note: the build dir can be named as you want)
 
-The master branch of the raylib source code is downloaded using CMake FetchContent from github and compiled from source as it is much easier than including prebuilt binaries for every platform and configuration.
+# License
+Copyright (C) 2025	Dayvid Nizier
 
-Building from the cmake file will build both raylib and `src/main.c` which includes a basic example of a raylib program.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
 
-## Asset handling
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-The example in `src/main.c` uses an example image located in the `assets` folder.
-To load it we use `ASSETS_PATH`, which is a string macro with the *absolute* path "assets" directory.
-This macro is defined in the `CMakeLists.txt` file on line `23`.
- 
-If you plan on releasing or sharing your game consider manually setting the value of the `ASSETS_PATH` macro.
-
-In C you can concatenate string literals by putting them next to each other, 
-eg: `"A" "B"` is `"AB"`. So ASSETS_PATH `"test.png"` becomes `"/path/to/your/assets/test.png"`
-
-If you wanna share your game with others you should set ASSETS_PATH to be a *relative* path like "./assets/". You can do this in the CMakeLists.txt file. 
-
-## Using C++
-
-Using c++ is quite simple, just change these lines in the `CMakeLists.txt`
-from
-```
-project(my_raylib_game C)
-
-set(CMAKE_C_STANDARD 99)
-
-file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/sources/*.c")
-```
-to
-```
-project(my_raylib_game CXX)
-
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/sources/*.cpp")
-```
-After this just reload cmake and it should build fine.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
