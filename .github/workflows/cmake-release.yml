@@ -1,0 +1,91 @@
+name: CMake Release
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
+      fail-fast: false
+
+      # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        c_compiler: [gcc,clang]
+        include:
+          # Windows fail for now as it doesn't have dirent.h
+          #- os: windows-latest
+          #  c_compiler: gcc
+          #  Ubuntu fail for now, cannot find X11 ?!
+          #- os: ubuntu-latest
+          #  c_compiler: gcc
+          # macOS 15, both arm and intel
+          - os: macos-latest
+            c_compiler: clang
+          - os: macos-15-intel
+            c_compiler: clang
+        exclude:
+          # Windows fail for now as it doesn't have dirent.h
+          - os: windows-latest
+            c_compiler: clang
+          #  Ubuntu fail for now, cannot find X11 ?!
+          - os: ubuntu-latest
+            c_compiler: clang
+          # macOS 15, both arm and intel
+          - os: macos-latest
+            c_compiler: gcc
+          - os: macos-15-intel
+            c_compiler: gcc
+          # Windows fail for now as it doesn't have dirent.h
+          - os: windows-latest
+            c_compiler: gcc
+          #  Ubuntu fail for now, cannot find X11 ?!
+          - os: ubuntu-latest
+            c_compiler: gcc
+
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v5
+
+    - name: Set reusable strings
+      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Configure CMake
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+        -S ${{ github.workspace }}
+
+    - name: Build 3DFM
+      # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
+    
+    - name: Rename 3DFM to 3DFM-<os>
+      run: cp -v ${{ steps.strings.outputs.build-output-dir }}/3DFM ./3DFM-${{ matrix.os }}
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: 3DFM-${{ matrix.os }}
+        path: 3DFM-${{ matrix.os }}
+    
+    - name: Create Release if tagged
+      uses: softprops/action-gh-release@v2
+      if: github.ref_type == 'tag'
+      with:
+        draft: true
+        files: 3DFM-${{ matrix.os }}
+        token: ${{ secrets.TDFM_TOKEN }}
