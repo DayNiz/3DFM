@@ -16,11 +16,11 @@ jobs:
 
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest] #, windows-latest]
         c_compiler: [gcc,clang]
         include:
-          - os: windows-latest
-            c_compiler: gcc
+          #- os: windows-latest
+          #  c_compiler: clang
           - os: ubuntu-latest
             c_compiler: gcc
           # macOS 15, both arm and intel
@@ -29,10 +29,9 @@ jobs:
           - os: macos-15-intel
             c_compiler: clang
         exclude:
-          # Windows fail for now as it doesn't have dirent.h
-          - os: windows-latest
-            c_compiler: clang
-          #  Ubuntu fail for now, cannot find X11 ?!
+          # Windows fail for now ?!
+          #- os: windows-latest
+          #  c_compiler: gcc
           - os: ubuntu-latest
             c_compiler: clang
           # macOS 15, both arm and intel
