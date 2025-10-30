@@ -19,12 +19,10 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         c_compiler: [gcc,clang]
         include:
-          # Windows fail for now as it doesn't have dirent.h
-          #- os: windows-latest
-          #  c_compiler: gcc
-          #  Ubuntu fail for now, cannot find X11 ?!
-          #- os: ubuntu-latest
-          #  c_compiler: gcc
+          - os: windows-latest
+            c_compiler: gcc
+          - os: ubuntu-latest
+            c_compiler: gcc
           # macOS 15, both arm and intel
           - os: macos-latest
             c_compiler: clang
@@ -42,17 +40,15 @@ jobs:
             c_compiler: gcc
           - os: macos-15-intel
             c_compiler: gcc
-          # Windows fail for now as it doesn't have dirent.h
-          - os: windows-latest
-            c_compiler: gcc
-          #  Ubuntu fail for now, cannot find X11 ?!
-          - os: ubuntu-latest
-            c_compiler: gcc
 
 
     steps:
     - name: Checkout repo
       uses: actions/checkout@v5
+
+    - name: Install deps
+      if: runner.os == 'Linux'
+      run: sudo apt install -y libxrandr-dev libx11-dev libxinerama-dev libxcursor-dev libxi-dev libglfw3{,-dev}
 
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.

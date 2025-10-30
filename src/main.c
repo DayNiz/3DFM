@@ -36,6 +36,9 @@
 #define WINDOW_TITLE "3DFM"
 
 typedef struct {
+	// With tinydir, I can only know if it's a file, a dir,
+	// or something else, so for now:
+	// 0: reg file, 1: dir, 2; unknown
 	int type;
 	// 255 char is usually the max for a filename
 	char name[255];
@@ -65,48 +68,11 @@ int main(int argc, char** argv)
 
 	tinydir_open_sorted(&dir, path);
 	
-	/*unsigned int numFiles = 0;
-	while (file != NULL)
-	{
-		if (file->d_name[0] == '.')
-		{
-			// We skip hidden files.
-			file = readdir(dirp);
-			continue;
-		}
-		switch (file->d_type)
-		{
-			case DT_REG:
-				printf("name: %s\n", file->d_name);
-				numFiles++;
-				break;
-			case DT_DIR:
-				printf("name: %s\n", file->d_name);
-				numFiles++;
-				break;
-			case DT_LNK:
-				printf("name: %s\n", file->d_name);
-				numFiles++;
-				break;
-			default:
-				break;
-		}
-		printf("\n");
-		file = readdir(dirp);
-	}
-
-	printf("count: %i\n", numFiles);
-	*/
 	printf("count: %i\n", dir.n_files);
 
-	//DEBUG
-	tinydir_close(&dir);
-	////////
-
-	/*
-	/\* We run once again to set the array of files *\/
-	fileT fileArray[numFiles];
-	/\* We close and reopen the dir *\/
+	/* We run once again to set the array of files */
+	fileT fileArray[dir.n_files];
+	/* We close and reopen the dir *\/
 	closedir(dirp);
 	dirp = opendir(path);
 	if (dirp == NULL)
@@ -225,6 +191,7 @@ int main(int argc, char** argv)
 	CloseWindow();
 	*/
 
+	tinydir_close(&dir);
 	return 0;
 }
 
