@@ -69,8 +69,6 @@ int main(int argc, char** argv)
 	tinydir_open_sorted(&dir, path);
 	numFiles = dir.n_files;
 	
-	printf("count: %i\n", numFiles);
-
 	/* We run once again to set the array of files */
 	fileT fileArray[numFiles];
 
