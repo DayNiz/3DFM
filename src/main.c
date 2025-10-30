@@ -15,9 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-//TODO: Replace dirent by tinydir
 //TODO: replace fileListe[] by stb_ds
-//#include <dirent.h>
 
 #include <string.h>
 #include <sys/types.h>
@@ -28,6 +26,7 @@
 
 
 #include "tinydir.h"
+#define STB_DS_IMPLEMENTATION
 #include "stb_ds.h"
 
 #define SCREEN_WIDTH (800)
@@ -47,6 +46,8 @@ typedef struct {
 int main(int argc, char** argv)
 {
 	char* path;
+	int numFiles;
+
 	switch (argc)
 	{
 		case 1:
@@ -64,65 +65,43 @@ int main(int argc, char** argv)
 	SetTargetFPS(60);
 
 	tinydir_dir dir;
-	tinydir_file file;
 
 	tinydir_open_sorted(&dir, path);
+	numFiles = dir.n_files;
 	
-	printf("count: %i\n", dir.n_files);
+	printf("count: %i\n", numFiles);
 
 	/* We run once again to set the array of files */
-	fileT fileArray[dir.n_files];
-	/* We close and reopen the dir *\/
-	closedir(dirp);
-	dirp = opendir(path);
-	if (dirp == NULL)
+	fileT fileArray[numFiles];
+
+	for (int i = 0; i < numFiles; i++)
 	{
-		switch (errno)
+		tinydir_file file;
+		tinydir_readfile_n(&dir, &file, i);
+
+		// We record the file name and type
+		printf("Name: %s\n", file.name);
+		strcpy(fileArray[i].name, file.name);
+		if (file.is_reg)
 		{
-			case EACCES:
-				fprintf(stderr, "ERR: Access denied\n\n");
-				return 2;
-			case ENOENT:
-				fprintf(stderr, "ERR: No such file or directory\n\n");
-				return 2;
-			case ENOTDIR:
-				fprintf(stderr, "ERR: Not a directory\n\n");
-				return 2;
-			default:
-				fprintf(stderr, "ERR opening dir");
-				return 2;
+			fileArray[i].type = 0;
+		}
+		else if (file.is_dir)
+		{
+			fileArray[i].type = 1;
+		}
+		else
+		{
+			fileArray[i].type = 2;
 		}
 	}
-	file = readdir(dirp);
-
-	int count = 0;
-	int all = 0;
-	while (file != NULL)
-	{
-		if (file->d_name[0] == '.')
-		{
-			file = readdir(dirp);
-			continue;
-		}
-		strcpy(fileArray[count].name, file->d_name);
-		fileArray[count].type = file->d_type;
-
-		file = readdir(dirp);
-		count++;
-	}
-	closedir(dirp);
-	if (count == 0)
-	{
-		printf("Dir is empty, quitting for now...");
-		return 3;
-	}
-
+	tinydir_close(&dir);
 
 	int numFilesSquared = (int)ceil( sqrt( (double)numFiles) );
 
 	// Define the camera to look into our 3d world
 	Camera3D camera = { 0 };
-	camera.position = (Vector3){ 0.0f, 3.5f, -5.0f };	// Camera position
+	camera.position = (Vector3){ 0.0f, -2.0f, -5.5f };	// Camera position
 	camera.target = (Vector3){ 0.0f, 1.0f, 0.0f };		// Camera looking at point
 	camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };			// Camera up vector (rotation towards target)
 	camera.fovy = 45.0f;								// Camera field-of-view Y
@@ -153,25 +132,22 @@ int main(int argc, char** argv)
 						nameScrPos = GetWorldToScreen(cubePos, camera);
 						switch (fileArray[i].type)
 						{
-							case DT_REG:
+							case 0:
+								// Regular file
 								DrawCube( cubePos, 1.0f, 1.0f, 1.0f, GREEN);
 								EndMode3D();
 								DrawText(fileArray[i].name, nameScrPos.x, nameScrPos.y, 10, WHITE);
 								BeginMode3D(camera);
 								break;
-							case DT_DIR:
+							case 1:
+								// Directory file
 								DrawCube( cubePos, 1.0f, 1.0f, 1.0f, RED);
 								EndMode3D();
 								DrawText(fileArray[i].name, nameScrPos.x, nameScrPos.y, 10, WHITE);
 								BeginMode3D(camera);
 								break;
-							case DT_LNK:
-								DrawCube( cubePos, 1.0f, 1.0f, 1.0f, BLUE);
-								EndMode3D();
-								DrawText(fileArray[i].name, nameScrPos.x, nameScrPos.y, 10, WHITE);
-								BeginMode3D(camera);
-								break;
 							default:
+								// Any other files
 								DrawCube( cubePos, 1.0f, 1.0f, 1.0f, PURPLE);
 								EndMode3D();
 								DrawText("unknown", nameScrPos.x, nameScrPos.y, 10, WHITE);
@@ -187,11 +163,8 @@ int main(int argc, char** argv)
 		EndDrawing();
 
 	}
-
 	CloseWindow();
-	*/
 
-	tinydir_close(&dir);
 	return 0;
 }
 
