@@ -1,0 +1,56 @@
+name: CMake Release
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
+      fail-fast: false
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v5
+
+    - name: Install deps
+      run: sudo apt install -y libxrandr-dev libx11-dev libxinerama-dev libxcursor-dev libxi-dev libglfw3{,-dev} gcc-mingw-w64
+
+    - name: Set reusable strings
+      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Configure CMake
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc
+        -S ${{ github.workspace }}
+
+    - name: Build 3DFM
+      # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
+    
+    - name: Rename 3DFM to 3DFM-<os>
+      run: cp -v ${{ steps.strings.outputs.build-output-dir }}/3DFM.exe ./3DFM-windows.exe
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: 3DFM-windows.exe
+        path: 3DFM-windows.exe
+    
+    - name: Create Release if tagged
+      uses: softprops/action-gh-release@v2
+      if: github.ref_type == 'tag'
+      with:
+        draft: true
+        files: 3DFM-windows.exe
+        token: ${{ secrets.TDFM_TOKEN }}
