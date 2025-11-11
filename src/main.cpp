@@ -44,9 +44,7 @@ nfiles_sqrt = (int)ceil(sqrt((double)num_files));
 
 int main(int argc, char **argv)
 {
-	const Vector3 cube_size = (Vector3) {
-		1.0f, 1.0f, 1.0f
-	};
+	const Vector3 cube_size = { 1.0f, 1.0f, 1.0f };
 	int num_files;
 	int nfiles_sqrt;
 	bool skip_dotfiles = true;
@@ -86,22 +84,16 @@ int main(int argc, char **argv)
 
 	// Define the camera
 	Camera3D camera = {};
-	camera.position = (Vector3) {
-		-2.7f, 0.8f, -2.7f
-	    };
-	camera.target = (Vector3) {
-		0.0f, 0.0f, 0.0f
-	};
-	camera.up = (Vector3) {
-		0.0f, 1.0f, 0.0f
-	};
+	camera.position = {	-2.7f, 0.8f, -2.7f };
+	camera.target = { 0.0f, 0.0f, 0.0f };
+	camera.up = { 0.0f, 1.0f, 0.0f };
 	camera.fovy = 45.0f;
 	camera.projection = CAMERA_PERSPECTIVE;
 
 
 	while (!WindowShouldClose()) {
 		if (IsKeyPressed(KEY_H)) {
-			skip_dotfiles = not skip_dotfiles;
+			skip_dotfiles = !skip_dotfiles;
 			BeginDrawing();
 			DrawText("LOADING...", 0, 0, 18, GREEN);
 			EndDrawing();
@@ -125,7 +117,7 @@ int main(int argc, char **argv)
 
 			DrawFPS(SCREEN_WIDTH-10, SCREEN_HEIGHT-10);
 			fs::path abs_path = fs::absolute(path);
-			DrawText(abs_path.c_str(), SCREEN_WIDTH/2, 0, 12, C_TEXT);
+			DrawText((const char*)abs_path.c_str(), SCREEN_WIDTH/2, 0, 12, C_TEXT);
 
 			if (IsCursorHidden()) {
 				UpdateCamera(&camera, CAMERA_FIRST_PERSON);

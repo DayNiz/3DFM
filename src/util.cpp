@@ -52,7 +52,7 @@ void loadDir(fs::path path, std::vector<fileT>& file_array, bool skip_dotfiles)
 		std::string name = file.path().filename().string();
 		fileT prev_dir;
 
-		if (skip_dotfiles and name[0] == '.') {
+		if (skip_dotfiles && name[0] == '.') {
 			std::cout<<"Skipping " << name << std::endl;
 			continue;
 		}

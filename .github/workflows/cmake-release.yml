@@ -1,4 +1,4 @@
-name: CMake Release OSX&Linux
+name: 3DFM Release
 
 on:
   push:
