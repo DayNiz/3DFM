@@ -68,7 +68,7 @@ void loadDir(fs::path path, std::vector<fileT>& file_array, bool skip_dotfiles)
 			current_file.color = C_REG;
 		} else if (file.is_symlink()) {
 			std::cout << "type: sym" << std::endl;
-			current_file.name = fs::read_symlink(file);
+			current_file.name = fs::read_symlink(file).filename().string();
 			current_file.type = fs::file_type::symlink;
 			current_file.color = C_SYM;
 		} else if (file.is_directory()) {

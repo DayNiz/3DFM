@@ -136,7 +136,7 @@ int main(int argc, char **argv)
 				for (int i = 0; i  < file_array.size(); i++) {
 					int x = std::floor(i/nfiles_sqrt);
 					int y = i%nfiles_sqrt;
-					file_array[i].position = (Vector3) {
+					file_array[i].position = {
 						x * 2.0f,
 						0.5f,
 						y * 2.0f
@@ -180,10 +180,10 @@ int main(int argc, char **argv)
 					}
 
 				}
-				DrawPlane((Vector3) {
+				DrawPlane({
 					nfiles_sqrt-0.5f, 0.0f, nfiles_sqrt-0.5f
 				},
-				(Vector2) {
+				{
 					nfiles_sqrt*2.0f+1.0f, nfiles_sqrt*2.0f+1.0f
 				},
 				C_FLOOR);
@@ -204,7 +204,7 @@ int main(int argc, char **argv)
 				int x = std::floor(closest_i/nfiles_sqrt);
 				int y = closest_i%nfiles_sqrt;
 				//FIXME
-				Vector2 name_scr_pos = (Vector2) {
+				Vector2 name_scr_pos = {
 					x*1.0f, y*1.0f
 				};
 				std::cout << "clicking on " << file_array[closest_i].name << std::endl;
