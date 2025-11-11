@@ -56,7 +56,7 @@ jobs:
     - name: Rename 3DFM to 3DFM-windows
       if: runner.os == 'Windows'
       shell: bash
-      run: cp -v "${{ steps.strings.outputs.build-output-dir }}\3DFM.exe" ".\3DFM-windows.exe"
+      run: cp -v "\build\3DFM.exe" ".\3DFM-windows.exe"
 
 
     - name: Upload artifacts (UNIX)
