@@ -34,6 +34,7 @@ jobs:
       shell: bash
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+        echo "build-name=./3DFM-$( ${{ matrix.os }} | sed 's/-latest//')" >> "$GITHUB_OUTPUT"
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -49,13 +50,13 @@ jobs:
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
     
     - name: Rename 3DFM to 3DFM-<os>
-      run: cp -v ${{ steps.strings.outputs.build-output-dir }}/3DFM ./3DFM-$( ${{ matrix.os }} | sed 's/-latest//')
+      run: cp -v ${{ steps.strings.outputs.build-output-dir }}/3DFM ./3DFM-$( ${{ echo matrix.os }} | sed 's/-latest//')
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: ./3DFM-$( ${{ matrix.os }} | sed 's/-latest//')
-        path: ./3DFM-$( ${{ matrix.os }} | sed 's/-latest//')
+        name: ./3DFM-$( echo ${{ matrix.os }} | sed 's/-latest//')
+        path: ./3DFM-$( echo ${{ matrix.os }} | sed 's/-latest//')
     
     - name: Create Release if tagged
       uses: softprops/action-gh-release@v2

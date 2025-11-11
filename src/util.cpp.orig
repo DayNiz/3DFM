@@ -114,13 +114,13 @@ float detectMouse(fileT file, Camera camera)
 			collision = GetRayCollisionBox(ray, {
 				{
 					file.position.x - file.position.x/2,
-					file.position.y - file.position.y/2,
-					file.position.z - file.position.z/2
+					                file.position.y - file.position.y/2,
+					                file.position.z - file.position.z/2
 				},
 				{
 					file.position.x + file.position.x/2,
-					file.position.y + file.position.y/2,
-					file.position.z + file.position.z/2
+					                file.position.y + file.position.y/2,
+					                file.position.z + file.position.z/2
 				}
 			});
 		} else {
