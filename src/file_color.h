@@ -1,0 +1,15 @@
+#pragma once
+
+#define C_PAR	RED
+#define C_FLOOR	ORANGE
+#define C_TEXT	BLACK
+
+#define C_REG	(Color){ 0xA8, 0xBE, 0xD1, 255 }
+#define C_DIR	(Color){ 0xC4, 0x4D, 0x83, 255 }
+#define C_SYM	(Color){ 0x0B, 0x1E, 0x3C, 255 }
+
+#define C_BLK	(Color){ 0xD9, 0xE2, 0xE9, 255 }
+#define C_CHR	(Color){ 0xD1, 0xCF, 0xC3, 255 }
+#define C_FIFO	(Color){ 0xED, 0x97, 0x6D, 255 }
+#define C_SOCK	(Color){ 0x3E, 0x50, 0x65, 255 }
+#define C_UNK	(Color){ 0xE6, 0xD5, 0xC7, 255 }

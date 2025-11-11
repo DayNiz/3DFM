@@ -1,0 +1,133 @@
+/* 3DFM - 3D File Manager
+ * - Explore your filesystem in a 3D world -
+ * Copyright (C) 2025	Dayvid Nizier
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+#include <cmath>
+#include <sys/types.h>
+#include <filesystem>
+#include <iostream>
+#include <string>
+#include <math.h>
+#include "raylib.h"
+
+#include "util.hpp"
+#include "file_color.h"
+
+
+
+void loadDir(fs::path path, std::vector<fileT>& file_array, bool skip_dotfiles)
+{
+	file_array.clear();
+	if (path != path.parent_path()) {
+		// We're not at root
+		fileT prev_dir = {
+			fs::file_type::directory,
+			"..",
+			path.parent_path(),
+			(Vector3)
+			{
+				0.0f,
+				0.5f,
+				0.0f
+			},
+			C_PAR
+		};
+		file_array.push_back(prev_dir);
+	}
+
+	for (fs::directory_entry const &file : fs::directory_iterator{path}) {
+		std::string name = file.path().filename().string();
+		fileT prev_dir;
+
+		if (skip_dotfiles and name[0] == '.') {
+			std::cout<<"Skipping " << name << std::endl;
+			continue;
+		}
+		fileT current_file;
+		// We record the file name and type
+		std::cout << "Name: " << name << std::endl;
+		current_file.name = name;
+		current_file.path = file.path();
+		/* Checking file type */
+		if (file.is_regular_file()) {
+			std::cout << "type: file" << std::endl;
+			current_file.type = fs::file_type::regular;
+			current_file.color = C_REG;
+		} else if (file.is_symlink()) {
+			std::cout << "type: sym" << std::endl;
+			current_file.name = fs::read_symlink(file);
+			current_file.type = fs::file_type::symlink;
+			current_file.color = C_SYM;
+		} else if (file.is_directory()) {
+			std::cout << "type: dir" << std::endl;
+			current_file.type = fs::file_type::directory;
+			current_file.color = C_DIR;
+		} else if (file.is_block_file()) {
+			std::cout << "type: blk" << std::endl;
+			current_file.type = fs::file_type::block;
+			current_file.color = C_BLK;
+		} else if (file.is_character_file()) {
+			std::cout << "type: chr" << std::endl;
+			current_file.type = fs::file_type::character;
+			current_file.color = C_CHR;
+		} else if (file.is_fifo()) {
+			std::cout << "type: fifo" << std::endl;
+			current_file.type = fs::file_type::fifo;
+			current_file.color = C_FIFO;
+		} else if (file.is_socket()) {
+			std::cout << "type: socket" << std::endl;
+			current_file.type = fs::file_type::socket;
+			current_file.color = C_UNK;
+		} else {
+			std::cout << "type: other" << std::endl;
+			current_file.type = fs::file_type::unknown;
+			current_file.color = MAROON;
+		}
+		file_array.push_back(current_file);
+	}
+}
+
+float detectMouse(fileT file, Camera camera)
+{
+	Ray ray = { 0 };
+	RayCollision collision = { 0 };
+	Vector2 name_scr_pos = GetWorldToScreen(file.position, camera);
+	Vector3 cube_pos = file.position;
+	//name_scr_pos
+	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+		if (!collision.hit) {
+			ray = GetScreenToWorldRay(GetMousePosition(), camera);
+
+			// Check collision between ray and box
+			collision = GetRayCollisionBox(ray, (BoundingBox) {
+				(Vector3) {
+					file.position.x - file.position.x/2,
+					                file.position.y - file.position.y/2,
+					                file.position.z - file.position.z/2
+				},
+				(Vector3) {
+					file.position.x + file.position.x/2,
+					                file.position.y + file.position.y/2,
+					                file.position.z + file.position.z/2
+				}
+			});
+		} else {
+			collision.hit = false;
+		}
+	}
+	return collision.hit;
+}
+

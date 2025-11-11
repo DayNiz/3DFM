@@ -19,10 +19,11 @@
 #include <sys/types.h>
 #include <filesystem>
 #include <iostream>
-#include <string>
-#include <vector>
 #include <math.h>
 #include "raylib.h"
+
+#include "file_color.h"
+#include "util.hpp"
 
 #define SCREEN_WIDTH (600)
 #define SCREEN_HEIGHT (450)
@@ -31,24 +32,30 @@
 
 namespace fs = std::filesystem;
 
-typedef struct {
-	// Maybe creating a type is useless but fow now I'll keep it.
-	fs::file_type type;
-	std::string name;
-} fileT;
+
+/*
+BeginDrawing();
+DrawText("LOADING...", 0, 0, 18, GREEN);
+EndDrawing();
+loadDir(path, file_array, skip_dotfiles);
+num_files = file_array.size();
+nfiles_sqrt = (int)ceil(sqrt((double)num_files));
+*/
 
 int main(int argc, char **argv)
 {
-	// Should we skip hidden (.*) files ?
-	bool skip_hidden_files = true;
-	fs::path path;
-	std::vector<fileT> file_array;
+	const Vector3 cube_size = (Vector3) {
+		1.0f, 1.0f, 1.0f
+	};
 	int num_files;
 	int nfiles_sqrt;
+	bool skip_dotfiles = true;
+	fs::path path;
+	std::vector<fileT> file_array;
 
 	switch (argc) {
 	case 1:
-		path = ".";
+		path = fs::current_path();
 		break;
 	case 2:
 		path = argv[1];
@@ -68,55 +75,19 @@ int main(int argc, char **argv)
 
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
 	SetTargetFPS(60);
-	DisableCursor();
 
-	for (fs::directory_entry const &file : fs::directory_iterator{path}) {
-		std::string name = file.path().filename().string();
-		if (skip_hidden_files and name[0] == '.' and name != "..") {
-			std::cout<<"Skipping "<<file.path().filename().string()<<std::endl;
-			continue;
-		}
-		fileT current_file;
-		// We record the file name and type
-		std::cout << "Name: " << name << std::endl;
-		current_file.name = name;
-		/* Checking file type */
-		if (file.is_regular_file()) {
-			std::cout << "type: file" << std::endl;
-			current_file.type = fs::file_type::regular;
-		} else if (file.is_directory()) {
-			std::cout << "type: dir" << std::endl;
-			current_file.type = fs::file_type::directory;
-		} else if (file.is_symlink()) {
-			std::cout << "type: sym" << std::endl;
-			current_file.name = fs::read_symlink(file);
-			current_file.type = fs::file_type::symlink;
-		} else if (file.is_block_file()) {
-			std::cout << "type: blk" << std::endl;
-			current_file.type = fs::file_type::block;
-		} else if (file.is_character_file()) {
-			std::cout << "type: chr" << std::endl;
-			current_file.type = fs::file_type::character;
-		} else if (file.is_fifo()) {
-			std::cout << "type: fifo" << std::endl;
-			current_file.type = fs::file_type::fifo;
-		} else if (file.is_socket()) {
-			std::cout << "type: socket" << std::endl;
-			current_file.type = fs::file_type::socket;
-		} else {
-			std::cout << "type: other" << std::endl;
-			current_file.type = fs::file_type::unknown;
-		}
-		file_array.push_back(current_file);
-	}
+	BeginDrawing();
+	DrawText("LOADING...", 0, 0, 18, GREEN);
+	EndDrawing();
+	loadDir(path, file_array, skip_dotfiles);
 
 	num_files = file_array.size();
 	nfiles_sqrt = (int)ceil(sqrt((double)num_files));
 
-	// Define the camera to look into our 3d world
+	// Define the camera
 	Camera3D camera = {};
 	camera.position = (Vector3) {
-		-2.7f, 3.3f, -2.7f
+		-2.7f, 0.8f, -2.7f
 	    };
 	camera.target = (Vector3) {
 		0.0f, 0.0f, 0.0f
@@ -127,104 +98,137 @@ int main(int argc, char **argv)
 	camera.fovy = 45.0f;
 	camera.projection = CAMERA_PERSPECTIVE;
 
-	Vector3 cube_pos;
-	Vector3 cube_size;
-	Vector2 name_scr_pos;
 
 	while (!WindowShouldClose()) {
+		if (IsKeyPressed(KEY_H)) {
+			skip_dotfiles = not skip_dotfiles;
+			BeginDrawing();
+			DrawText("LOADING...", 0, 0, 18, GREEN);
+			EndDrawing();
+			loadDir(path, file_array, skip_dotfiles);
+			num_files = file_array.size();
+			nfiles_sqrt = (int)ceil(sqrt((double)num_files));
+		}
+		if (IsKeyPressed(KEY_P)) {
+			BeginDrawing();
+			DrawText("LOADING...", 0, 0, 18, GREEN);
+			EndDrawing();
+			path = path.parent_path();
+			loadDir(path, file_array, skip_dotfiles);
+			num_files = file_array.size();
+			nfiles_sqrt = (int)ceil(sqrt((double)num_files));
+		}
+
 		BeginDrawing();
 		{
 			ClearBackground(WHITE);
 
 			DrawFPS(SCREEN_WIDTH-10, SCREEN_HEIGHT-10);
 			fs::path abs_path = fs::absolute(path);
-			DrawText(abs_path.c_str(), 0, 0, 12, BLACK);
+			DrawText(abs_path.c_str(), SCREEN_WIDTH/2, 0, 12, C_TEXT);
+
+			if (IsCursorHidden()) {
+				UpdateCamera(&camera, CAMERA_FIRST_PERSON);
+			}
+			// Toggle camera control
+			if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
+				if (IsCursorHidden()) {
+					EnableCursor();
+				} else {
+					DisableCursor();
+				}
+			}
+
 			BeginMode3D(camera);
 			{
-				UpdateCamera(&camera, CAMERA_THIRD_PERSON);
 				for (int i = 0; i  < file_array.size(); i++) {
 					int x = std::floor(i/nfiles_sqrt);
 					int y = i%nfiles_sqrt;
-					cube_pos = (Vector3) {
+					file_array[i].position = (Vector3) {
 						x * 2.0f,
-						0.0f,
+						0.5f,
 						y * 2.0f
 					};
-					cube_size = (Vector3) {
-						1.0f, 1.0f, 1.0f
-					};
-
-					name_scr_pos = GetWorldToScreen(cube_pos, camera);
+					Vector3 cube_pos = file_array[i].position;
 					switch (file_array[i].type) {
+					case fs::file_type::symlink:
+						// Symlink file
+						DrawCubeV(cube_pos, cube_size, file_array[i].color);
+						break;
 					case fs::file_type::regular :
 						// Regular file
-						DrawCubeV(cube_pos, cube_size, GREEN);
-						EndMode3D();
-						DrawText(file_array[i].name.c_str(), name_scr_pos.x,
-						         name_scr_pos.y, 10, BLACK);
-						BeginMode3D(camera);
+						DrawCubeV(cube_pos, cube_size, file_array[i].color);
 						break;
 					case fs::file_type::directory:
 						// Directory file
-						DrawCubeV(cube_pos, cube_size, RED);
-						EndMode3D();
-						DrawText(file_array[i].name.c_str(), name_scr_pos.x,
-						         name_scr_pos.y, 10, BLACK);
-						BeginMode3D(camera);
-						break;
-					case fs::file_type::symlink:
-						// Symlink file
-						DrawCubeV(cube_pos, cube_size, BLUE);
-						EndMode3D();
-						DrawText(file_array[i].name.c_str(), name_scr_pos.x,
-						         name_scr_pos.y, 10, BLACK);
-						BeginMode3D(camera);
+						DrawCubeV(cube_pos, cube_size, file_array[i].color);
 						break;
 					case fs::file_type::block :
 						// Block file
-						DrawCubeV(cube_pos, cube_size, PURPLE);
-						EndMode3D();
-						DrawText(file_array[i].name.c_str(), name_scr_pos.x,
-						         name_scr_pos.y, 10, BLACK);
-						BeginMode3D(camera);
+						DrawCubeV(cube_pos, cube_size, file_array[i].color);
 						break;
 					case fs::file_type::character:
 						// Character file
-						DrawCubeV(cube_pos, cube_size, BROWN);
-						EndMode3D();
-						DrawText(file_array[i].name.c_str(), name_scr_pos.x,
-						         name_scr_pos.y, 10, BLACK);
-						BeginMode3D(camera);
+						DrawCubeV(cube_pos, cube_size, file_array[i].color);
 						break;
 					case fs::file_type::fifo :
 						// FIFO file
-						DrawCubeV(cube_pos, cube_size, ORANGE);
-						EndMode3D();
-						DrawText(file_array[i].name.c_str(), name_scr_pos.x,
-						         name_scr_pos.y, 10, BLACK);
+						DrawCubeV(cube_pos, cube_size, file_array[i].color);
 						BeginMode3D(camera);
 						break;
 					case fs::file_type::socket :
 						// Socket file
-						DrawCubeWiresV(cube_pos, cube_size, PINK);
-						EndMode3D();
-						DrawText(file_array[i].name.c_str(), name_scr_pos.x,
-						         name_scr_pos.y, 10, BLACK);
-						BeginMode3D(camera);
+						DrawCubeV(cube_pos, cube_size, file_array[i].color);
 						break;
+					case fs::file_type::unknown:
 					default:
 						// Any other files
-						DrawCube(cube_pos, 1.0f, 1.0f, 1.0f, GRAY);
-						EndMode3D();
-						DrawText("unknown", name_scr_pos.x,
-						         name_scr_pos.y, 10, BLACK);
-						BeginMode3D(camera);
+						DrawCubeV(cube_pos, cube_size, file_array[i].color);
 						break;
 					}
+
 				}
-				DrawGrid(20, 1.0f);
+				DrawPlane((Vector3) {
+					nfiles_sqrt-0.5f, 0.0f, nfiles_sqrt-0.5f
+				},
+				(Vector2) {
+					nfiles_sqrt*2.0f+1.0f, nfiles_sqrt*2.0f+1.0f
+				},
+				C_FLOOR);
 			}
 			EndMode3D();
+
+			float closest_distance = 0.0;
+			int closest_i = -1;
+			for (int i = 0; i  < file_array.size(); i++) {
+				float distance_pressed = detectMouse(file_array[i], camera);
+				if (distance_pressed > closest_distance) {
+					closest_distance = distance_pressed;
+					closest_i = i;
+				}
+			}
+
+			if (closest_distance != 0) {
+				int x = std::floor(closest_i/nfiles_sqrt);
+				int y = closest_i%nfiles_sqrt;
+				//FIXME
+				Vector2 name_scr_pos = (Vector2) {
+					x*1.0f, y*1.0f
+				};
+				std::cout << "clicking on " << file_array[closest_i].name << std::endl;
+				std::cout << (fs::exists(file_array[closest_i].name)) << std::endl;
+				if (file_array[closest_i].type != fs::file_type::unknown
+				        && file_array[closest_i].type == fs::file_type::directory
+				        && fs::exists(file_array[closest_i].path)
+				        && IsCursorHidden() ) {
+					path = file_array[closest_i].path;
+					std::cout << "loading " << path << std::endl;
+					DrawText("LOADING...", 0, 0, 18, GREEN);
+					loadDir(path, file_array, skip_dotfiles);
+					num_files = file_array.size();
+					nfiles_sqrt = (int)ceil(sqrt((double)num_files));
+				}
+			}
 		}
 		EndDrawing();
 	}
