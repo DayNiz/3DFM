@@ -1,4 +1,4 @@
-name: CMake Release
+name: CMake Release OSX&Linux
 
 on:
   push:
