@@ -182,7 +182,8 @@ int main(int argc, char **argv)
 				}
 				DrawPlane({
 					nfiles_sqrt-0.5f, 0.0f, nfiles_sqrt-0.5f
-				}, {
+				},
+				{
 					nfiles_sqrt*2.0f+1.0f, nfiles_sqrt*2.0f+1.0f
 				},
 				C_FLOOR);
