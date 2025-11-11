@@ -73,17 +73,15 @@ jobs:
         path: ./3DFM-windows.exe
     
     - name: Create Release if tagged (UNIX)
-      if: runner.os != 'Windows'
+      if: runner.os != 'Windows' && github.ref_type == 'tag'
       uses: softprops/action-gh-release@v2
-      if: github.ref_type == 'tag'
       with:
         draft: true
         files: ./3DFM-$( ${{ matrix.os }} | sed 's/-latest//')
         token: ${{ secrets.TDFM_TOKEN }}
     - name: Create Release if tagged (Windows)
-      if: runner.os == 'Windows'
+      if: runner.os == 'Windows' && github.ref_type == 'tag'
       uses: softprops/action-gh-release@v2
-      if: github.ref_type == 'tag'
       with:
         draft: true
         files: ./3DFM-$( ${{ matrix.os }} | sed 's/-latest//')
