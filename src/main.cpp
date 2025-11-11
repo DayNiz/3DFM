@@ -73,6 +73,7 @@ int main(int argc, char **argv)
 
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
 	SetTargetFPS(60);
+	DisableCursor();
 
 	BeginDrawing();
 	DrawText("LOADING...", 0, 0, 18, GREEN);

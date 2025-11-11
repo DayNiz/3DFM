@@ -1,6 +1,11 @@
-# 3DFM
-*( 3 Dimention File Manager )*
+# 3DFM *( 3 Dimention File Manager )*
 Explore your filesytem in a 3D world ! 
+
+# Usage
+`./3DFM [path]`
+
+3DFM will try to load the path if provided, otherwise it will load the current
+working directory.
 
 ---
 # Compiling

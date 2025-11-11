@@ -48,15 +48,21 @@ jobs:
     - name: Build 3DFM
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
-    
     - name: Rename 3DFM to 3DFM-<os>
-      run: cp -v ${{ steps.strings.outputs.build-output-dir }}/3DFM ./3DFM-$( echo ${{ matrix.os }} | sed 's/-latest//')
+      shell: bash
+      run: |
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          cp -v "${{ steps.strings.outputs.build-output-dir }}/3DFM.exe" "./3DFM-windows.exe"
+        else
+          cp -v "${{ steps.strings.outputs.build-output-dir }}/3DFM" "./3DFM-$(echo ${{ matrix.os }} | sed 's/-latest//')"
+        fi
+
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: ./3DFM-$( echo ${{ matrix.os }} | sed 's/-latest//')
-        path: ./3DFM-$( echo ${{ matrix.os }} | sed 's/-latest//')
+        name: 3DFM-${{ replace(matrix.os, '-latest', '') }}${{ runner.os == 'Windows' && '.exe' || '' }}
+        path: 3DFM-${{ replace(matrix.os, '-latest', '') }}${{ runner.os == 'Windows' && '.exe' || '' }}
     
     - name: Create Release if tagged
       uses: softprops/action-gh-release@v2
