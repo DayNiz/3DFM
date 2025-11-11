@@ -16,11 +16,10 @@ jobs:
 
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest]
         c_compiler: clang
         cxx_compiler: clang++
         include:
-          - os: windows-latest
           - os: ubuntu-latest
           # macOS 15, both arm and intel
           - os: macos-latest
