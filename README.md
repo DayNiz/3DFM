@@ -8,7 +8,7 @@ Explore your filesytem in a 3D world !
 
 3DFM is developped on Linux (Debian 13), but is also known to work on macOS 26, and compile on Windows (but haven't been tested yet).
 
-You can find releases on the Release tab, or find the latest version on the Actions tab (but the latter require a GitHub Account)
+You can find releases on the [Release](https://github.com/DayNiz/3DFM/releases) tab, or find the latest version on the [Actions](https://github.com/DayNiz/3DFM/actions) tab (but the latter require a GitHub Account)
 
 ## Navigation
  - To naviguate, use WASD (or the equivalent on your keaboard, for instance ZQSD on a AZERTY keyboard), the arrow keys and your mouse.
