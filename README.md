@@ -1,6 +1,8 @@
 # 3DFM *( 3 Dimention File Manager )*
 Explore your filesytem in a 3D world ! 
 
+![3DFM Screenshot](./Screenshot-3DFM_v0.0.2.png "3DFM screenshot, as on v0.0.2")
+
 ## Usage
 `./3DFM [path]`
 
