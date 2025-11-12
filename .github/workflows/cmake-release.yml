@@ -47,8 +47,8 @@ jobs:
       run: cp -v "./build/3DFM" "./3DFM-$(echo ${{ matrix.os }} | sed 's/-latest//')"
     - name: Rename 3DFM to 3DFM-windows
       if: runner.os == 'Windows'
-      shell: bash
-      run: cp -v ".\build\3DFM.exe" ".\3DFM-windows.exe"
+      shell: cmd
+      run: copy build\Release\3DFM.exe 3DFM-windows.exe
 
 
     - name: Upload artifacts (UNIX)
@@ -61,8 +61,8 @@ jobs:
       if: runner.os == 'Windows'
       uses: actions/upload-artifact@v4
       with:
-        name: .\3DFM-windows.exe
-        path: .\3DFM-windows.exe
+        name: 3DFM-windows
+        path: 3DFM-windows.exe
     
     - name: Create Release if tagged (UNIX)
       if: runner.os != 'Windows' && github.ref_type == 'tag'
@@ -76,5 +76,5 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         draft: true
-        files: .\3DFM-windows.exe
+        files: 3DFM-windows.exe
         token: ${{ secrets.TDFM_TOKEN }}
