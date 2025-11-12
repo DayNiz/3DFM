@@ -19,10 +19,11 @@ You can find releases on the Release tab, or find the latest version on the Acti
 
 
 ## TODO (in no order)
-[x] basic file navigation
-[ ] Navigate to .. by clicking the parent cube
-[ ] Use real 3D models instead of basic cubes
-[ ] And more...
+ - [x] basic file navigation
+ - [ ] Navigate to .. by clicking the parent cube
+ - [ ] Use real 3D models instead of basic cubes
+ - [ ] File and folders operations: creating, deleting, opening, renaming
+ - [ ] And more...
 
 ---
 ## Compiling
