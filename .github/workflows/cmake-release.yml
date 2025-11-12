@@ -44,7 +44,7 @@ jobs:
     - name: Rename 3DFM to 3DFM-<os> (UNIX)
       if: runner.os != 'Windows'
       shell: bash
-      run: cp -v "./build/3DFM" "./3DFM-$(echo ${{ matrix.os }} | sed 's/-latest//')"
+      run: cp -v "./build/3DFM" "./3DFM-$( ${{ matrix.os }} | sed 's/-latest//' )"
     - name: Rename 3DFM to 3DFM-windows
       if: runner.os == 'Windows'
       shell: cmd
@@ -55,8 +55,8 @@ jobs:
       if: runner.os != 'Windows'
       uses: actions/upload-artifact@v4
       with:
-        name: ./3DFM-$( echo ${{ matrix.os }} | sed 's/-latest//')
-        path: ./3DFM-$( echo ${{ matrix.os }} | sed 's/-latest//') 
+        name: 3DFM-$( ${{ matrix.os }} | sed 's/-latest//' )
+        path: ./3DFM-$( ${{ matrix.os }} | sed 's/-latest//' ) 
     - name: Upload artifacts (Windows)
       if: runner.os == 'Windows'
       uses: actions/upload-artifact@v4
